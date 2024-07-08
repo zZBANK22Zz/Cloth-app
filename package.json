@@ -10,8 +10,11 @@
   },
   "dependencies": {
     "@nextui-org/react": "^2.4.2",
+    "axios": "^1.7.2",
     "framer-motion": "^11.2.13",
+    "lucide-react": "^0.401.0",
     "next": "14.2.4",
+    "next-auth": "^4.24.7",
     "react": "^18",
     "react-dom": "^18"
   },

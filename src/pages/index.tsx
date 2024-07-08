@@ -1,29 +1,62 @@
 import React, { useState } from "react";
 import MyNavbar from "./componant/Navbar";
-import MyCard from "./componant/Card";
-import { Button } from "@nextui-org/react";
-import OpenProduct from './componant/openProduct';
+import Footer from "./componant/Footer";
+import { Card, CardBody, CardFooter, Image } from "@nextui-org/react";
+import CreateProductModal from "./componant/CreateProductModal";
 
 export default function Home() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [productImage, setProductImage] = useState("");
 
-  const [currentPage, setCurrentPage] = useState(1);
-
-  function handlePageChange(arg0: number): void {
-    throw new Error("Function not implemented.");
+  const handleSetproductImage = (image: string) => {
+    setProductImage(image);
   }
 
+  const handleCloseSetproductImage = () => {
+    console.log("Close product image");
+  }
+
+  const handleCreateProduct = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+  };
+
   return (
-    <main className="bg-slate-300 min-h-screen">
-      <MyNavbar />
-      <div className="mt-6 ml-10">
-        <h1 className="text-black font-bold text-2xl mb-4">All Clothes</h1>
-      </div>
-      
-      <div className="px-10">
+    <div>
+      <main className="bg-slate-300 min-h-screen">
+        <MyNavbar />
+        <div className="mt-6 ml-10">
+          <h1 className="text-black font-bold text-2xl mb-4">All Clothes</h1>
+        </div>
+
+        {/* <div className="px-10">
         <MyCard />
-      </div>
-      
-      <div className="flex justify-start mt-4 mx-12">
+      </div> */}
+
+        <div>
+          <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 p-4 px-10">
+            <Card shadow="sm" key={1} isPressable onClick={handleCreateProduct}>
+              <CardBody className="overflow-visible p-0">
+                <Image
+                  shadow="sm"
+                  radius="lg"
+                  width="100%"
+                  alt="PlusIcon"
+                  className="w-full object-cover h-[140px]"
+                  src="https://thumbs.dreamstime.com/b/plus-icon-vector-technology-concept-thin-line-illustration-editable-stroke-linear-sign-use-web-mobile-apps-logo-192180395.jpg"
+                />
+              </CardBody>
+              <CardFooter className="text-small justify-between">
+                <b>available</b>
+              </CardFooter>
+            </Card>
+          </div>
+        </div>
+
+        {/* <div className="flex justify-start mt-4 mx-12">
         <ul className="flex list-none p-0">
           {[...Array(10)].map((_, index) => (
             <li key={index}>
@@ -40,7 +73,17 @@ export default function Home() {
             </li>
           ))}
         </ul>
-      </div>
-    </main>
+      </div> */}
+      </main>
+      <Footer></Footer>
+      {isModalOpen && (
+        <CreateProductModal
+          isOpen={isModalOpen}
+          onClose={handleClose}
+          
+          setImageProduct={handleSetproductImage}
+        />
+      )}
+    </div>
   );
 }
