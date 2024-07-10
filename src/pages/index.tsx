@@ -1,44 +1,34 @@
 import React, { useState } from "react";
 import MyNavbar from "./componant/Navbar";
 import Footer from "./componant/Footer";
-import { Card, CardBody, CardFooter, Image } from "@nextui-org/react";
-import CreateProductModal from "./componant/CreateProductModal";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  Image,
+  Button,
+} from "@nextui-org/react";
+
+import Link from "next/link";
 
 export default function Home() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [productImage, setProductImage] = useState("");
-
-  const handleSetproductImage = (image: string) => {
-    setProductImage(image);
-  }
-
-  const handleCloseSetproductImage = () => {
-    console.log("Close product image");
-  }
-
-  const handleCreateProduct = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleClose = () => {
-    setIsModalOpen(false);
-  };
-
   return (
     <div>
-      <main className="bg-slate-300 min-h-screen">
+      <main className="bg-gray-100 min-h-screen">
         <MyNavbar />
-        <div className="mt-6 ml-10">
+        <div className="mt-6 ml-10 flex justify-between items-center mx-10">
           <h1 className="text-black font-bold text-2xl mb-4">All Clothes</h1>
+          <Link href="./shop/Create">
+            <Button>Add Product</Button>
+          </Link>
         </div>
 
-        {/* <div className="px-10">
-        <MyCard />
-      </div> */}
+        <hr className="my-4 mx-10 border-gray-300" />
+        {/* Line between Header and Body */}
 
         <div>
           <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 p-4 px-10">
-            <Card shadow="sm" key={1} isPressable onClick={handleCreateProduct}>
+            <Card shadow="sm">
               <CardBody className="overflow-visible p-0">
                 <Image
                   shadow="sm"
@@ -55,35 +45,9 @@ export default function Home() {
             </Card>
           </div>
         </div>
-
-        {/* <div className="flex justify-start mt-4 mx-12">
-        <ul className="flex list-none p-0">
-          {[...Array(10)].map((_, index) => (
-            <li key={index}>
-              <button
-                className={`px-4 py-2 mx-1 ${
-                  currentPage === index + 1
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-200 text-gray-700"
-                } rounded-xl`}
-                onClick={() => handlePageChange(index + 1)}
-              >
-                {index + 1}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div> */}
       </main>
-      <Footer></Footer>
-      {isModalOpen && (
-        <CreateProductModal
-          isOpen={isModalOpen}
-          onClose={handleClose}
-          
-          setImageProduct={handleSetproductImage}
-        />
-      )}
+
+      <Footer />
     </div>
   );
 }

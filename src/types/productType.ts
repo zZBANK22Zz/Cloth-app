@@ -25,7 +25,7 @@ export type createProductDTO = {
     category: string;
     description: string;
     price: number;
-    color: string[];
+    colors: string[];
     sizes: string[];
     imageUrl: string;
     imageUrls: string[];
