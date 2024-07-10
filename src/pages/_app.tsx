@@ -1,11 +1,18 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { NextUIProvider } from "@nextui-org/react";
+import { SessionProvider } from "next-auth/react";
+import { Session } from "next-auth";
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppProps<{ session: Session }>) {
   return (
-    <NextUIProvider>
-      <Component {...pageProps} />
-    </NextUIProvider>
+    <SessionProvider session={session}>
+      <NextUIProvider>
+        <Component {...pageProps} />
+      </NextUIProvider>
+    </SessionProvider>
   );
 }
