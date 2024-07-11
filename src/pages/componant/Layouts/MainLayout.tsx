@@ -67,7 +67,7 @@ import {
                       <Link href="/shop">My Shop</Link>
                     </DropdownItem>
                     <DropdownItem
-                      key="signout"
+                      key="sign out"
                       className="text-danger"
                       color="danger"
                       onClick={() => signOut()}

@@ -37,27 +37,11 @@ const CreateProductPage = () => {
     };
     try {
       await productService.createProduct(newProduct);
-      console.log("Submit completed bitch");
+      console.log("Submit completed bitch!!!");
       router.push("../componant/CreateProductSuccessModal.tsx");
       setIsModalOpen(true);
     } catch (error) {
       console.error("Failed to create product", error);
-    }
-  };
-
-  const uploadFile = async (file: File): Promise<string | null> => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      return data.imageUrl;
-    } catch (error) {
-      console.error("Failed to upload file", error);
-      return null;
     }
   };
 
@@ -66,15 +50,21 @@ const CreateProductPage = () => {
   ) => {
     if (e.target.files && e.target.files.length > 0) {
       const files = Array.from(e.target.files);
-      // fileService.uploadFiles(files);
       const result = await fileService.uploadFiles(files);
+      // Result is the imageUrl from console. we can see it.
+      //Try to print the image.
+      //result is string, fileUrl is array that y v choose in index.
       console.log(result);
-      // const fileService = new FileService();
-      // const uploadPromises = files.map((file) => uploadFile(file));
-      // const uploadedImageUrls = await Promise.all(uploadPromises);
-      // setGalleryImageURLs(
-      // uploadedImageUrls.filter((url) => url !== null) as string[]
-      // );
+      setImageUrl(result.fileUrls[0]);
+    }
+  };
+
+  const handleSelectGalleryImages: ChangeEventHandler<HTMLInputElement> = async (e) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      const results = await fileService.uploadFiles(files);
+      setGalleryImageURLs(results.fileUrls);
+      console.log(results);
     }
   };
 
@@ -94,6 +84,7 @@ const CreateProductPage = () => {
                   <div className="flex flex-col items-center gap-4 w-full">
                     {imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
+                      // Show image after user picked.
                       <ImagePicker previewUrl={imageUrl} />
                     ) : (
                       <label
@@ -138,38 +129,54 @@ const CreateProductPage = () => {
                     <div className="flex flex-col items-start gap-4 w-full">
                       <h1 className="font-bold text-black">Gallery</h1>
                     </div>
-                    <label
-                      htmlFor="uploadProductGallery"
-                      className="border border-gray-300 rounded-lg w-full h-24 flex items-center justify-center cursor-pointer hover:border-green-500"
-                    >
-                      <div className="text-center">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 mx-auto mb-1"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 4v16m8-8H4"
-                            color="rgb(156 163 175)"
+                    {/* Show image gallery after user added */}
+                    {galleryImageURLs.length > 0 ? (
+                      <div className="grid grid-cols-3 gap-4">
+                        {galleryImageURLs.map((url, index) => (
+                          <ImagePicker  previewUrl={url}
+                            key={index}
+                            //src={url}
+                            //alt={`Gallery Image ${index + 1}`}
+                            //width={100}
+                            //height={300}
                           />
-                        </svg>
-                        <span className="text-sm text-gray-400">
-                          Select images
-                        </span>
+                        ))}
                       </div>
-                    </label>
+
+                    ) : (
+                      <label
+                        htmlFor="uploadProductGallery"
+                        className="border border-gray-300 rounded-lg w-full h-24 flex items-center justify-center cursor-pointer hover:border-green-500"
+                      >
+                        <div className="text-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6 mx-auto mb-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 4v16m8-8H4"
+                              color="rgb(156 163 175)"
+                            />
+                          </svg>
+                          <span className="text-sm text-gray-400">
+                            Select images
+                          </span>
+                        </div>
+                      </label>
+                    )}
                     <input
                       id="uploadProductGallery"
                       type="file"
                       hidden
                       accept="image/*"
                       multiple
-                      // handle gallery upload here
+                      onChange={handleSelectGalleryImages}
                     />
                   </div>
                 </div>
@@ -279,6 +286,9 @@ const CreateProductPage = () => {
           </form>
         </div>
       </MainLayout>
+      <CreateProductSuccessModal
+      isOpen={isModalOpen}
+      />
     </div>
   );
 };
