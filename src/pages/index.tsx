@@ -2,6 +2,7 @@ import Link from "next/link";
 import MainLayout from "./componant/Layouts/MainLayout";
 import React from "react";
 import { Button } from "@nextui-org/react";
+import MyCard from './componant/Card';
 
 const HomePage = () => {
   return (
@@ -13,6 +14,9 @@ const HomePage = () => {
               <Button className="bg-gray-200">Add Product</Button>
             </Link>
           </div>
+        </div>
+        <div>
+          <MyCard />
         </div>
       </div>
     </MainLayout>

@@ -1,15 +1,16 @@
-import React, { ChangeEventHandler, useState } from "react";
+import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { Input, Button } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import productService from "@/services/productService";
 import { createProductDTO } from "@/types/productType";
-import MyNavbar from "../componant/Navbar";
 import Breadcrumb from "../componant/Breadcrumb";
-import Footer from "../componant/Footer";
 import ImagePicker from "../componant/ImagePicker";
 import CreateProductSuccessModal from "../componant/CreateProductSuccessModal";
 import fileService from "../../services/fileservice";
 import MainLayout from "../componant/Layouts/MainLayout";
+import { useDisclosure } from "@nextui-org/react";
+
+
 
 const CreateProductPage = () => {
   const [productName, setProductName] = useState("");
@@ -20,28 +21,66 @@ const CreateProductPage = () => {
   const [sizes, setSizes] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState(""); // image URl
   const [galleryImageURLs, setGalleryImageURLs] = useState<string[]>([]); //Gallery images
-  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const createProductDisclosure = useDisclosure();
 
-  const handleCreateProduct = async (event: React.FormEvent) => {
-    event.preventDefault();
+  // const handleCreateProduct = async (event: React.FormEvent) => {
+  //   event.preventDefault();
+  //   const newProduct: createProductDTO = {
+  //     name: productName,
+  //     description,
+  //     category,
+  //     price: parseFloat(price),
+  //     colors,
+  //     sizes,
+  //     imageUrl: imageUrl || "",
+  //     imageUrls: galleryImageURLs,
+  //   };
+  //   const createNowProduct = createProduct(newProduct);
+  //   console.log("Create Product Success"+ createNowProduct );
+
+  //   console.log(newProduct);
+  //   const createNewProduct = productService.createProduct(newProduct);
+  //   console.log("Create new Product: " + createNewProduct);
+  //   setIsModalOpen(true);
+
+  // };
+
+  // const handleCreateProduct = () => {
+  //   createProductDisclosure.onOpen();
+  // };
+
+  const refreshProductFromServer = async () => {
+    const myProducts = await productService.fetchMyProducts();
+    console.log("My Products: " + myProducts);
+  };
+
+  // const createProducts = async () => {
+  //   const response = await productService.createProduct(Product);
+  //   console.log("res data: " +response);
+  //   setIsModalOpen(true);
+  //   refreshProductFromServer
+  // };
+
+  const handleCreateProduct = async () => {
     const newProduct: createProductDTO = {
       name: productName,
-      description,
       category,
+      description,
       price: parseFloat(price),
       colors,
       sizes,
-      imageUrl: imageUrl || "",
+      imageUrl,
       imageUrls: galleryImageURLs,
     };
+
+    console.log("Creating product with data:", newProduct);
+
     try {
-      await productService.createProduct(newProduct);
-      console.log("Submit completed bitch!!!");
-      router.push("../componant/CreateProductSuccessModal.tsx");
-      setIsModalOpen(true);
+      const createNewProduct = await productService.createProduct(newProduct);
+      console.log("Product created successfully:", createNewProduct);
     } catch (error) {
-      console.error("Failed to create product", error);
+      console.error("Failed to create product:", error);
     }
   };
 
@@ -59,7 +98,9 @@ const CreateProductPage = () => {
     }
   };
 
-  const handleSelectGalleryImages: ChangeEventHandler<HTMLInputElement> = async (e) => {
+  const handleSelectGalleryImages: ChangeEventHandler<
+    HTMLInputElement
+  > = async (e) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
       const results = await fileService.uploadFiles(files);
@@ -83,7 +124,6 @@ const CreateProductPage = () => {
                   <h1 className="font-bold text-black my-4">Image</h1>
                   <div className="flex flex-col items-center gap-4 w-full">
                     {imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
                       // Show image after user picked.
                       <ImagePicker previewUrl={imageUrl} />
                     ) : (
@@ -133,7 +173,8 @@ const CreateProductPage = () => {
                     {galleryImageURLs.length > 0 ? (
                       <div className="grid grid-cols-3 gap-4">
                         {galleryImageURLs.map((url, index) => (
-                          <ImagePicker  previewUrl={url}
+                          <ImagePicker
+                            previewUrl={url}
                             key={index}
                             //src={url}
                             //alt={`Gallery Image ${index + 1}`}
@@ -142,7 +183,6 @@ const CreateProductPage = () => {
                           />
                         ))}
                       </div>
-
                     ) : (
                       <label
                         htmlFor="uploadProductGallery"
@@ -276,18 +316,15 @@ const CreateProductPage = () => {
               </div>
             </div>
 
-            <Button
-              type="submit"
-              onSubmit={handleCreateProduct}
-              className="mt-4 bg-green-500 text-white"
-            >
+            <Button type="submit" className="mt-4 bg-green-500 text-white" onSubmit={handleCreateProduct}>
               Create
             </Button>
           </form>
         </div>
       </MainLayout>
       <CreateProductSuccessModal
-      isOpen={isModalOpen}
+        isOpen={isModalOpen}
+        onOpenChange={() => setIsModalOpen(false)}
       />
     </div>
   );

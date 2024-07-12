@@ -1,28 +1,17 @@
 import { useState } from "react";
 
-const useProductState = () => {
-  //name
-  //category
-  //description
-  //price
-  //color
-  //sizes
-  //material
-  //brand
-  //imageURL
-  //imageURLs
-  //tags
+const useProductStates = () => {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(0);
-  const [color, setColor] = useState("");
-  const [sizes, setSizes] = useState([]);
+  const [price, setPrice] = useState("0");
+  const [color, setColor] = useState<string[]>([]);
+  const [sizes, setSizes] = useState<string[]>([]);
   const [material, setMaterial] = useState("");
   const [brand, setBrand] = useState("");
-  const [imageURL, setImageURL] = useState("");
-  const [imageURLs, setImageURLs] = useState([]);
-  const [tags, setTags] = useState([]);
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
 
   return {
     name,
@@ -41,13 +30,13 @@ const useProductState = () => {
     setMaterial,
     brand,
     setBrand,
-    imageURL,
-    setImageURL,
-    imageURLs,
-    setImageURLs,
+    imageUrl,
+    setImageUrl,
+    imageUrls,
+    setImageUrls,
     tags,
     setTags,
-  }
+  };
 };
 
-export default useProductState;
+export default useProductStates;

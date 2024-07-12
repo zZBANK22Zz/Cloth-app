@@ -7,7 +7,7 @@ const Breadcrumb: React.FC<{ current: string }> = ({ current }) => {
       <ol className="flex space-x-2">
         <li>
           <Link href="/shop">
-            <span className="text-gray-400">My Shops</span>
+            <span className="text-gray-400">All Products</span>
           </Link>
         </li>
         <li className="text-gray-400">{">"}</li>
