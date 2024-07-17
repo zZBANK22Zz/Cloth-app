@@ -64,7 +64,7 @@ import {
                   </DropdownTrigger>
                   <DropdownMenu aria-label="Static Actions">
                     <DropdownItem key="my-shop">
-                      <Link href="/shop">My Shop</Link>
+                      <Link href="/Edit">My Shop</Link>
                     </DropdownItem>
                     <DropdownItem
                       key="sign out"
@@ -83,12 +83,12 @@ import {
                   onClick={() => signIn("google")}
                 >
                   Sign In With
-                  {/* <Image
-                    src="src/pages/icon/Google.png"
-                    alt="google logo"
+                  <Image
+                    src="/icon/google2"
+                    alt=""
                     width={24}
-                    height={24} */}
-                  {/* /> */}
+                    height={24}
+                  />
                 </Button>
               )}
             </NavbarItem>

@@ -9,7 +9,7 @@ export default function MyNavbar() {
       <div className="flex justify-center items-center mb-5">
         <h1 className="text-red-600 font-bold underline text-xl">Cloth!</h1>
         <div className="absolute right-10">
-          <Button className="bg-gray-200 text-black font-bold flex items-center rounded-lg p-2 text-xs">
+          {/* <Button className="bg-gray-200 text-black font-bold flex items-center rounded-lg p-2 text-xs">
             Sign in with
             <Image
               src={googleLogo}
@@ -18,7 +18,7 @@ export default function MyNavbar() {
               height={18}
               // className="ml"
             />
-          </Button>
+          </Button> */}
         </div>
       </div>
     </div>

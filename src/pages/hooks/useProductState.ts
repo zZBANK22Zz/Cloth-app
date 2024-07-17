@@ -1,3 +1,4 @@
+import { colors } from "@nextui-org/react";
 import { useState } from "react";
 
 const useProductStates = () => {
@@ -5,7 +6,7 @@ const useProductStates = () => {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("0");
-  const [color, setColor] = useState<string[]>([]);
+  const [colors, setColors] = useState<string[]>([]);
   const [sizes, setSizes] = useState<string[]>([]);
   const [material, setMaterial] = useState("");
   const [brand, setBrand] = useState("");
@@ -22,8 +23,8 @@ const useProductStates = () => {
     setDescription,
     price,
     setPrice,
-    color,
-    setColor,
+    colors,
+    setColors,
     sizes,
     setSizes,
     material,

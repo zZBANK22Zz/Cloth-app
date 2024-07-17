@@ -1,111 +1,87 @@
-import React, { ChangeEventHandler, useEffect, useState } from "react";
-import { Input, Button } from "@nextui-org/react";
-import { useRouter } from "next/router";
-import productService from "@/services/productService";
-import { createProductDTO } from "@/types/productType";
-import Breadcrumb from "../componant/Breadcrumb";
-import ImagePicker from "../componant/ImagePicker";
-import CreateProductSuccessModal from "../componant/CreateProductSuccessModal";
-import fileService from "../../services/fileservice";
+import { GetServerSideProps } from "next";
 import MainLayout from "../componant/Layouts/MainLayout";
-import { useDisclosure } from "@nextui-org/react";
+import React, { useEffect, useState } from "react";
+import { Product, UpdateProductDTO, User } from "@/types/productType";
+import productService from "@/services/productService";
+import { useRouter } from "next/router";
+import UpdateProductSuccessModal from "../componant/UpdateProductSuccess";
+import ImagePicker from "../componant/ImagePicker";
+import Breadcrumb from "../componant/Breadcrumb";
+import { Input, Button } from "@nextui-org/react";
+import { useSession } from "next-auth/react";
+import axios from "axios";
 
+type EditProductPageProps = {
+  product: Product;
+  currentUser: User;
+};
 
-
-const CreateProductPage = () => {
-  const [productName, setProductName] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
-  const [price, setPrice] = useState("");
-  const [colors, setColors] = useState<string[]>([]);
-  const [sizes, setSizes] = useState<string[]>([]);
-  const [imageUrl, setImageUrl] = useState(""); // image URl
-  const [galleryImageURLs, setGalleryImageURLs] = useState<string[]>([]); //Gallery images
+const EditProductPage: React.FC<EditProductPageProps> = ({ product }) => {
+  const session = useSession();
+  const [form, setForm] = useState<UpdateProductDTO>({
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    imageUrl: product.imageUrl,
+    imageUrls: product.imageUrls,
+    sizes: product.sizes,
+    color: product.color,
+  });
+  const [imageUrl, setImageUrl] = useState<string>(product.imageUrl);
+  const [galleryImageURLs, setGalleryImageURLs] = useState<string[]>(
+    product.imageUrls
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const createProductDisclosure = useDisclosure();
+  const [colors, setColors] = useState<string[]>(product.color);
+  const [sizes, setSizes] = useState<string[]>(product.sizes);
+  const router = useRouter();
 
-  // const handleCreateProduct = async (event: React.FormEvent) => {
-  //   event.preventDefault();
-  //   const newProduct: createProductDTO = {
-  //     name: productName,
-  //     description,
-  //     category,
-  //     price: parseFloat(price),
-  //     colors,
-  //     sizes,
-  //     imageUrl: imageUrl || "",
-  //     imageUrls: galleryImageURLs,
-  //   };
-  //   const createNowProduct = createProduct(newProduct);
-  //   console.log("Create Product Success"+ createNowProduct );
 
-  //   console.log(newProduct);
-  //   const createNewProduct = productService.createProduct(newProduct);
-  //   console.log("Create new Product: " + createNewProduct);
-  //   setIsModalOpen(true);
-
-  // };
-
-  // const handleCreateProduct = () => {
-  //   createProductDisclosure.onOpen();
-  // };
-
-  const refreshProductFromServer = async () => {
-    const myProducts = await productService.fetchMyProducts();
-    console.log("My Products: " + myProducts);
-  };
-
-  // const createProducts = async () => {
-  //   const response = await productService.createProduct(Product);
-  //   console.log("res data: " +response);
-  //   setIsModalOpen(true);
-  //   refreshProductFromServer
-  // };
-
-  const handleCreateProduct = async () => {
-    const newProduct: createProductDTO = {
-      name: productName,
-      category,
-      description,
-      price: parseFloat(price),
-      colors,
-      sizes,
-      imageUrl,
-      imageUrls: galleryImageURLs,
-    };
-
-    console.log("Creating product with data:", newProduct);
-
-    try {
-      const createNewProduct = await productService.createProduct(newProduct);
-      console.log("Product created successfully:", createNewProduct);
-    } catch (error) {
-      console.error("Failed to create product:", error);
-    }
-  };
-
-  const handleSelectImageProduct: ChangeEventHandler<HTMLInputElement> = async (
-    e
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const files = Array.from(e.target.files);
-      const result = await fileService.uploadFiles(files);
-      // Result is the imageUrl from console. we can see it.
-      //Try to print the image.
-      //result is string, fileUrl is array that y v choose in index.
-      console.log(result);
-      setImageUrl(result.fileUrls[0]);
+    const { name, value } = e.target;
+    setForm({
+      ...form,
+      [name]: value,
+    });
+  };
+  
+
+  const handleSelectImageProduct = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageUrl(reader.result as string);
+        setForm({ ...form, imageUrl: reader.result as string });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleSelectGalleryImages: ChangeEventHandler<
-    HTMLInputElement
-  > = async (e) => {
+  const handleSelectGalleryImages = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      const results = await fileService.uploadFiles(files);
-      setGalleryImageURLs(results.fileUrls);
-      console.log(results);
+      const urls = files.map((file) => URL.createObjectURL(file));
+      setGalleryImageURLs(urls);
+      setForm({ ...form, imageUrls: urls });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await productService.updateProduct(product.id, {
+        ...form,
+        color: colors,
+        sizes,
+      });
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("Failed to update product:", error);
     }
   };
 
@@ -113,10 +89,10 @@ const CreateProductPage = () => {
     <div className="bg-gray-100">
       <MainLayout>
         <div className="container mx-auto p-10 mb-40">
-          <Breadcrumb current="Create" />
+          <Breadcrumb current="Edit" />
           <hr className="my-4 mx-10 border-gray-300" />
 
-          <form className="flex flex-col gap-4">
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Image upload section */}
               <div className="flex flex-start">
@@ -124,7 +100,6 @@ const CreateProductPage = () => {
                   <h1 className="font-bold text-black my-4">Image</h1>
                   <div className="flex flex-col items-center gap-4 w-full">
                     {imageUrl ? (
-                      // Show image after user picked.
                       <ImagePicker previewUrl={imageUrl} />
                     ) : (
                       <label
@@ -132,7 +107,6 @@ const CreateProductPage = () => {
                         className="border border-gray-300 rounded-lg w-full h-24 flex items-center justify-center cursor-pointer hover:border-green-500"
                       >
                         <div className="text-center">
-                          {/* Plus icon */}
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-6 w-6 mx-auto mb-1"
@@ -148,7 +122,6 @@ const CreateProductPage = () => {
                               color="rgb(156 163 175)"
                             />
                           </svg>
-                          {/* text in the input box. */}
                           <span className="text-sm text-gray-400">
                             Select an image
                           </span>
@@ -169,18 +142,10 @@ const CreateProductPage = () => {
                     <div className="flex flex-col items-start gap-4 w-full">
                       <h1 className="font-bold text-black">Gallery</h1>
                     </div>
-                    {/* Show image gallery after user added */}
                     {galleryImageURLs.length > 0 ? (
                       <div className="grid grid-cols-3 gap-4">
                         {galleryImageURLs.map((url, index) => (
-                          <ImagePicker
-                            previewUrl={url}
-                            key={index}
-                            //src={url}
-                            //alt={`Gallery Image ${index + 1}`}
-                            //width={100}
-                            //height={300}
-                          />
+                          <ImagePicker previewUrl={url} key={index} />
                         ))}
                       </div>
                     ) : (
@@ -221,6 +186,7 @@ const CreateProductPage = () => {
                   </div>
                 </div>
               </div>
+
               {/* Product details section */}
               <div className="flex flex-col gap-4">
                 <h1 className="font-bold text-black my-4">Product Details</h1>
@@ -228,32 +194,33 @@ const CreateProductPage = () => {
                   name="name"
                   type="text"
                   placeholder="Product name"
-                  value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
+                  value={form.name}
+                  onChange={handleChange}
                   className="border border-gray-300 rounded-lg p-2"
                 />
                 <Input
                   name="description"
                   type="text"
                   placeholder="Product description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  value={form.description}
+                  onChange={handleChange}
                   className="border border-gray-300 rounded-lg p-2"
                 />
                 <Input
                   name="category"
                   type="text"
                   placeholder="Select a category"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  value={form.category || ""}
+                  onChange={handleChange}
                   className="border border-gray-300 rounded-lg p-2"
                 />
                 <Input
                   name="price"
                   type="text"
                   placeholder="Product price (THB)"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  value={form.price !== undefined ? form.price.toString() : ""}                  onChange={(e) =>
+                    setForm({ ...form, price: parseFloat(e.target.value) })
+                  }
                   className="border border-gray-300 rounded-lg p-2"
                 />
 
@@ -275,7 +242,6 @@ const CreateProductPage = () => {
                           type="checkbox"
                           value={color}
                           checked={colors.includes(color)}
-                          color="silver"
                           onChange={(e) => {
                             if (e.target.checked) {
                               setColors([...colors, color]);
@@ -315,19 +281,29 @@ const CreateProductPage = () => {
                 </div>
               </div>
             </div>
-
-            <Button type="submit" className="mt-4 bg-green-500 text-white" onSubmit={handleCreateProduct}>
-              Create
+            php Copy code
+            <Button type="submit" className="mt-4 bg-green-500 text-white">
+              Save
             </Button>
           </form>
         </div>
       </MainLayout>
-      <CreateProductSuccessModal
+      <UpdateProductSuccessModal
         isOpen={isModalOpen}
-        onOpenChange={() => setIsModalOpen(false)}
-      />
+        onOpenChange={() => setIsModalOpen(false)} productId={""}      />
     </div>
   );
 };
 
-export default CreateProductPage;
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { productId } = context.params as { productId: string };
+  const product = await productService.fetchProduct(productId);
+
+  return {
+    props: {
+      product,
+    },
+  };
+};
+
+export default EditProductPage;
