@@ -32,7 +32,7 @@ export default function CreateProductSuccessModal(props: Props) {
                   Stay in this page
                 </Button>
                 <Button color="primary">
-                  <Link href="/shop">View your product</Link>
+                  <Link href="/product/MyProduct">View your product</Link>
                 </Button>
               </ModalFooter>
             </>

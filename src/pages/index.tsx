@@ -50,7 +50,7 @@ const HomePage: React.FC = () => {
         <div className="grid grid-cols-5 gap-3 mb-4">
           {products.map((product) => (
             <Link href={`/product/${product.id}`} key={product.id}>
-              <div className="flex flex-col relative overflow-hidden h-auto text-foreground box-border bg-content1 outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 shadow-small rounded-large transition-transform-background motion-reduce:transition-none w-full border border-transparent hover:border-primary transition-all">
+              <div className="flex flex-col relative overflow-hidden h-auto text-foreground box-border bg-content1 outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 shadow-small rounded-large motion-reduce:transition-none w-full border border-transparent hover:border-primary transition-all">
                 <div className="relative flex w-full flex-auto flex-col place-content-inherit align-items-inherit h-auto break-words text-left subpixel-antialiased overflow-visible p-0">
                   <div className="relative shadow-black/5 shadow-small rounded-large">
                     <Image

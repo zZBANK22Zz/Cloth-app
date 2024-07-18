@@ -53,7 +53,6 @@ const CreateProductPage = () => {
       const createNewProduct = await productService.createProduct(newProduct, session.accessToken);
       console.log("Product created successfully:", createNewProduct);
       setIsModalOpen(true);
-      router.push(`/product/${createNewProduct.id}`);
     } catch (error) {
       console.error("Failed to create product:", error);
     }

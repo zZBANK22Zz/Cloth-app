@@ -13,11 +13,10 @@ import { Route } from "lucide-react";
 import router, { useRouter } from "next/router";
 
 interface ProductCardProps {
-  handleEdit: (productId: string) => void;
-  productId: string;
-}
+  product: Product;
+};
 
-const MyCard: React.FC<ProductCardProps> = ({ handleEdit, productId }) => {
+const MyCard: React.FC<ProductCardProps> = ({ product }) => {
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -33,11 +32,6 @@ const MyCard: React.FC<ProductCardProps> = ({ handleEdit, productId }) => {
     fetchData();
   }, []);
 
-  const handleClick = () => {
-    router.push(`/product/${productId}`);
-    handleEdit(productId);
-  };
-
   return (
     <div>
       <h1 className="px-80 font-bold">All Product</h1>
@@ -48,7 +42,6 @@ const MyCard: React.FC<ProductCardProps> = ({ handleEdit, productId }) => {
               shadow="sm"
               key={index}
               isPressable
-              onClick={handleClick}
             >
               <CardBody className="overflow-visible p-0">
                 <Image
