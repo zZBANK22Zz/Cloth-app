@@ -31,7 +31,7 @@ const updateProduct = async (productId: string, dto: UpdateProductDTO) => {
   return axios.patch<Product>(url, dto).then((res) => res.data);
 };
 
-const deleteProduct = async (productId: string) => {
+const deleteProduct = async (selectedProduct: Product, productId: string) => {
   const url = `${config.API_URL}/products/${productId}`;
   return axios.delete<string>(url).then((res) => res.data);
 };
