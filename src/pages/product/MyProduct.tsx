@@ -15,7 +15,7 @@ const MyProduct: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const confirmModalDisclosour = useDisclosure();
+  const confirmModalDisclosure = useDisclosure();
   
   const { data: session } = useSession();  const handleEdit = (product: Product) => {
     router.push("/product/Edit");
@@ -23,40 +23,28 @@ const MyProduct: React.FC = () => {
     //setIsEditModalOpen(true);
   };
 
-  const handleDelete = (productId: string) => {
-    confirmModalDisclosour.onOpen();
-    const productToDelete = products.find(
-      (product) => product.id === productId
-    );
-    if (productToDelete) {
-      setSelectedProduct(productToDelete);
+  const handleDelete = async (productId: string) => {
+    const selectedProduct = products.find((product) => product.id === productId);
+    if (selectedProduct) {
+      setSelectedProduct(selectedProduct);
+      confirmModalDisclosure.onOpen();
     }
   };
 
   const handleConfirmDelete = async () => {
-    if (selectedProduct && session && session.accessToken) {
+    if (selectedProduct && selectedProduct.id) {
       try {
-        await productService.deleteProduct(
-          selectedProduct,
-          session.accessToken
-        );
-        confirmModalDisclosour.onClose();
-        router.push("/my-products");
+        await productService.deleteProduct(selectedProduct.id);
+        setProducts(products.filter((product) => product.id !== selectedProduct.id));
+        confirmModalDisclosure.onClose();
+        setSelectedProduct(null); // Reset selected product after deletion
       } catch (error) {
         console.error("Failed to delete product:", error);
       }
+    } else {
+      console.error("No product selected or product ID is missing.");
     }
   };
-
-  // const handleDelete = async (productId: string) => {
-  //   setConfirmModalOpen(true);
-  //   try {
-  //     await productService.deleteProduct(productId);
-  //     setProducts(products.filter((product) => product.id !== productId));
-  //   } catch (error) {
-  //     console.error("Failed to delete product:", error);
-  //   }
-  // };
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -156,11 +144,9 @@ const MyProduct: React.FC = () => {
           />
         )}
         <ConfirmModal
-          isOpen={confirmModalDisclosour.isOpen}
-          onClose={confirmModalDisclosour.onClose}
-          title="Confirm Delete"
-          description="Are you sure you want to delete this product?"
-          onConfirm={handleConfirmDelete}
+          isOpen={confirmModalDisclosure.isOpen}
+          onOpenChange={confirmModalDisclosure.onOpenChange}
+          onDelete={handleConfirmDelete}
         />
       </div>
     </MainLayout>
@@ -168,3 +154,7 @@ const MyProduct: React.FC = () => {
 };
 
 export default MyProduct;
+function setConfirmModalOpen(arg0: boolean) {
+  throw new Error("Function not implemented.");
+}
+

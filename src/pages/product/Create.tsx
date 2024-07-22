@@ -24,7 +24,7 @@ const CreateProductPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const createProductDisclosure = useDisclosure();
 
-  const router = useRouter();
+  //const router = useRouter();
   const { data: session } = useSession();
 
   const handleCreateProduct = async (event: React.FormEvent) => {
