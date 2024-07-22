@@ -2,29 +2,53 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button, Image, useDisclosure } from "@nextui-org/react";
 import MainLayout from "../componant/Layouts/MainLayout";
-import { Product } from "@/types/productType";
+import { Product, UpdateProductDTO } from "@/types/productType";
 import productService from "@/services/productService";
-import EditProductModal from "../componant/EditProductModal";
+import UpdateProductModal from "../componant/EditProductModal";
 import router from "next/router";
 import ConfirmModal from "../componant/ConfirmModal";
 import { useSession } from "next-auth/react";
+import useProductStates from "../hooks/useProductState";
 
 const MyProduct: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  //const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const confirmModalDisclosure = useDisclosure();
-  
-  const { data: session } = useSession();  const handleEdit = (product: Product) => {
-    router.push("/product/Edit");
-    setSelectedProduct(product);
-    //setIsEditModalOpen(true);
-  };
 
-  const handleDelete = async (productId: string) => {
-    const selectedProduct = products.find((product) => product.id === productId);
+  // const handleEdit = async (productId: string) => {
+  //   // Find the product from the products array using the productId
+  //   const productToEdit = products.find((product) => product.id === productId);
+
+  //   if (productToEdit) {
+  //     // Create the UpdateProductDTO object using the found product
+  //     const updateProduct: UpdateProductDTO = {
+  //       name: productToEdit.name,
+  //       description: productToEdit.description,
+  //       category: productToEdit.category,
+  //       price: productToEdit.price,
+  //       color: productToEdit.color,
+  //       sizes: productToEdit.sizes,
+  //     };
+
+  //     // You can then use this object to update the product, for example:
+  //     await productService.updateProduct(productId, updateProduct);
+
+  //     console.log("Product to update:", updateProduct);
+  //     // Optionally open the edit modal or perform other actions here
+  //     setIsEditModalOpen(true);
+  //     setSelectedProduct(productToEdit);
+  //   } else {
+  //     console.error("Product not found");
+  //   }
+  // };
+
+  const handleDelete = (productId: string) => {
+    const selectedProduct = products.find(
+      (product) => product.id === productId
+    );
     if (selectedProduct) {
       setSelectedProduct(selectedProduct);
       confirmModalDisclosure.onOpen();
@@ -35,7 +59,9 @@ const MyProduct: React.FC = () => {
     if (selectedProduct && selectedProduct.id) {
       try {
         await productService.deleteProduct(selectedProduct.id);
-        setProducts(products.filter((product) => product.id !== selectedProduct.id));
+        setProducts(
+          products.filter((product) => product.id !== selectedProduct.id)
+        );
         confirmModalDisclosure.onClose();
         setSelectedProduct(null); // Reset selected product after deletion
       } catch (error) {
@@ -116,13 +142,15 @@ const MyProduct: React.FC = () => {
                     <p>{product.seller.name}</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      color="primary"
-                      onClick={() => handleEdit(product)}
-                    >
-                      Edit
-                    </Button>
+                    <Link href={"/product/Edit"}>
+                      <Button
+                        size="sm"
+                        color="primary"
+                      >
+                        Edit
+                      </Button>
+                    </Link>
+
                     <Button
                       size="sm"
                       color="danger"
@@ -136,13 +164,14 @@ const MyProduct: React.FC = () => {
             </div>
           ))}
         </div>
-        {isEditModalOpen && selectedProduct && (
-          <EditProductModal
+        {/* {isEditModalOpen && selectedProduct && (
+          <UpdateProductModal
             isOpen={() => isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}
             product={selectedProduct}
+            {...selectProductStates}
           />
-        )}
+        )} */}
         <ConfirmModal
           isOpen={confirmModalDisclosure.isOpen}
           onOpenChange={confirmModalDisclosure.onOpenChange}
@@ -154,7 +183,3 @@ const MyProduct: React.FC = () => {
 };
 
 export default MyProduct;
-function setConfirmModalOpen(arg0: boolean) {
-  throw new Error("Function not implemented.");
-}
-

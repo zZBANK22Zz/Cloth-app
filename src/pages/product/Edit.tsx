@@ -1,258 +1,107 @@
-import React, { ChangeEventHandler, useEffect, useState } from "react";
-import { Input, Button } from "@nextui-org/react";
-import { useRouter } from "next/router";
+import React, { ChangeEventHandler, useState } from "react";
+import {
+  Modal,
+  Button,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Input,
+} from "@nextui-org/react";
+import { Product } from "@/types/productType";
 import productService from "@/services/productService";
-import { createProductDTO, Product } from "@/types/productType";
-import Breadcrumb from "../componant/Breadcrumb";
-import ImagePicker from "../componant/ImagePicker";
-import CreateProductSuccessModal from "../componant/CreateProductSuccessModal";
-import fileService from "../../services/fileservice";
 import MainLayout from "../componant/Layouts/MainLayout";
-import { useDisclosure } from "@nextui-org/react";
-import { useSession } from "next-auth/react";
+import Breadcrumb from "../componant/Breadcrumb";
+import fileService from "@/services/fileservice";
 
-const EditProductPage = () => {
-  const [productName, setProductName] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
-  const [price, setPrice] = useState<number>(0);
-  const [colors, setColors] = useState<string[]>([]);
-  const [sizes, setSizes] = useState<string[]>([]);
-  const [imageUrl, setImageUrl] = useState(""); // image URl
-  const [galleryImageURLs, setGalleryImageURLs] = useState<string[]>([]); //Gallery images
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const editProductDisclosure = useDisclosure();
+interface Props {
+  product: Product;
+  onClose: () => void;
+  isOpen: () => void;
 
-  const router = useRouter();
-  const { id } = router.query;
-  const { data: session } = useSession();
+  name: string,
+  description: string,
+  category: string,
+  price: number,
+  colors: string[],
+  sizes: string[],
 
-  useEffect(() => {
-    if (id) {
-      fetchProduct(id as string);
-    }
-  }, [id]);
+  setName: (value: string) => void,
+  setDescription: (value: string) => void,
+  setCategory: (value: string) => void,
+  setPrice: (value: number) => void,
+  setColors: (value: string[]) => void,
+  setSizes: (value: string[]) => void,
+}
 
-  const fetchProduct = async (productId: string) => {
-    try {
-      const data = await productService.fetchProduct(productId);
-      setProductName(data.name);
-      setDescription(data.description);
-      setCategory(data.category);
-      setPrice(data.price);
-      setColors(data.color);
-      setSizes(data.sizes);
-      setImageUrl(data.imageUrl);
-      setGalleryImageURLs(data.imageUrls);
-    } catch (error) {
-      console.error("Failed to fetch product details:", error);
-    }
-  };
+export default function UpdateProductModal({
+  name,
+  description,
+  category,
+  price,
+  colors = [],
+  sizes = [],
 
-  const handleEditProduct = async (event: React.FormEvent) => {
-    event.preventDefault();
-  
-    if (!session || !session.accessToken) {
-      console.error("User is not authenticated");
-      return;
-    }
-  
-    const updatedProduct: createProductDTO = {
-      name: productName,
-      category: category,
-      description: description,
-      price: price,
-      color: colors,
-      sizes: sizes,
-      imageUrl: imageUrl,
-      imageUrls: galleryImageURLs,
-    };
-  
-    // Log the payload to check the structure and content
-    console.log("Updating product with data:", JSON.stringify(updatedProduct, null, 2));
-  
-    try {
-      setLoading(true);
-      const updatedProductResponse = await productService.updateProduct(id as string, updatedProduct);
-      console.log("Product updated successfully:", updatedProductResponse);
-      setIsModalOpen(true);
-    } catch (error) {
-      console.error("Failed to update product:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  setName,
+  setDescription,
+  setCategory,
+  setPrice,
+  setColors,
+  setSizes
+}: Props) {
 
-  const handleSelectImageProduct: ChangeEventHandler<HTMLInputElement> = async (
-    e
-  ) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const files = Array.from(e.target.files);
-      const result = await fileService.uploadFiles(files);
-      setImageUrl(result.fileUrls[0]);
-    }
-  };
-
-  const handleSelectGalleryImages: ChangeEventHandler<
-    HTMLInputElement
-  > = async (e) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files);
-      const results = await fileService.uploadFiles(files);
-      setGalleryImageURLs(results.fileUrls);
-    }
-  };
-
-  const handleCancel = () => {
-    router.push("/my-products");
-  };
+  const handleChangeName: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setName(e.target.value);
+  }
+  const handleChangeDescription: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setDescription(e.target.value);
+  }
+  const handleChangeCategory: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setCategory(e.target.value);
+  }
+  const handleChangePrice: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setPrice(Number(e.target.value));
+  }
 
   return (
     <div className="bg-gray-100">
       <MainLayout>
         <div className="container mx-auto p-10 mb-40">
-          <Breadcrumb current="Edit" />
+          <Breadcrumb current="Edit product" />
           <hr className="my-4 mx-10 border-gray-300" />
 
-          <form className="flex flex-col gap-4" onSubmit={handleEditProduct}>
+          <form className="flex flex-col gap-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Image upload section */}
-              <div className="flex flex-start">
-                <div className="flex flex-col gap-4">
-                  <h1 className="font-bold text-black my-4">Image</h1>
-                  <div className="flex flex-col items-center gap-4 w-full">
-                    {imageUrl ? (
-                      // Show image after user picked.
-                      <ImagePicker previewUrl={imageUrl} />
-                    ) : (
-                      <label
-                        htmlFor="uploadProductImage"
-                        className="border border-gray-300 rounded-lg w-full h-24 flex items-center justify-center cursor-pointer hover:border-green-500"
-                      >
-                        <div className="text-center">
-                          {/* Plus icon */}
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6 mx-auto mb-1"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 4v16m8-8H4"
-                              color="rgb(156 163 175)"
-                            />
-                          </svg>
-                          {/* text in the input box. */}
-                          <span className="text-sm text-gray-400">
-                            Select an image
-                          </span>
-                        </div>
-                      </label>
-                    )}
-                    <input
-                      id="uploadProductImage"
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={handleSelectImageProduct}
-                    />
-                  </div>
 
-                  {/* Gallery upload section */}
-                  <div className="flex flex-col items-center gap-4 w-full my-10">
-                    <div className="flex flex-col items-start gap-4 w-full">
-                      <h1 className="font-bold text-black">Gallery</h1>
-                    </div>
-                    {/* Show image gallery after user added */}
-                    {galleryImageURLs.length > 0 ? (
-                      <div className="grid grid-cols-3 gap-4">
-                        {galleryImageURLs.map((url, index) => (
-                          <ImagePicker
-                            previewUrl={url}
-                            key={index}
-                            //src={url}
-                            //alt={`Gallery Image ${index + 1}`}
-                            //width={100}
-                            //height={300}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <label
-                        htmlFor="uploadProductGallery"
-                        className="border border-gray-300 rounded-lg w-full h-24 flex items-center justify-center cursor-pointer hover:border-green-500"
-                      >
-                        <div className="text-center">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6 mx-auto mb-1"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 4v16m8-8H4"
-                              color="rgb(156 163 175)"
-                            />
-                          </svg>
-                          <span className="text-sm text-gray-400">
-                            Select images
-                          </span>
-                        </div>
-                      </label>
-                    )}
-                    <input
-                      id="uploadProductGallery"
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      multiple
-                      onChange={handleSelectGalleryImages}
-                    />
-                  </div>
-                </div>
-              </div>
               {/* Product details section */}
               <div className="flex flex-col gap-4">
                 <h1 className="font-bold text-black my-4">Product Details</h1>
                 <Input
                   name="name"
                   type="text"
+                  value={name}
                   placeholder="Product name"
-                  value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
                   className="border border-gray-300 rounded-lg p-2"
                 />
                 <Input
                   name="description"
                   type="text"
-                  placeholder="Product description"
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Product description"
                   className="border border-gray-300 rounded-lg p-2"
                 />
                 <Input
                   name="category"
                   type="text"
-                  placeholder="Select a category"
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  placeholder="Select a category"
                   className="border border-gray-300 rounded-lg p-2"
                 />
                 <Input
                   name="price"
                   type="text"
+                  value={price !== undefined ? price.toString() : ''}
                   placeholder="Product price (THB)"
-                  value={price.toString()} // Ensure empty string for initial state
-                  onChange={(e) => setPrice(parseFloat(e.target.value))}
                   className="border border-gray-300 rounded-lg p-2"
                 />
 
@@ -315,31 +164,14 @@ const EditProductPage = () => {
               </div>
             </div>
 
-            <div className="flex justify-end gap-4">
-              <Button
-                type="button"
-                className="mt-4 bg-gray-500 text-white"
-                onClick={handleCancel}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="mt-4 bg-green-500 text-white"
-                disabled={loading}
-              >
-                {loading ? "Saving..." : "Save"}
-              </Button>
-            </div>
+            <Button type="submit" className="mt-4 bg-green-500 text-white">
+              Create
+            </Button>
           </form>
         </div>
-      </MainLayout>
-      <CreateProductSuccessModal
-        isOpen={isModalOpen}
-        onOpenChange={() => setIsModalOpen(false)}
-      />
+      </MainLayout>{" "}
     </div>
   );
 };
 
-export default EditProductPage;
+

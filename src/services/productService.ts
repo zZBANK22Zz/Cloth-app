@@ -21,7 +21,7 @@ const fetchProduct = async (productId: string) => {
   return axios.get<Product>(url).then((res) => res.data);
 };
 
-const createProduct = async (dto: createProductDTO, accessToken: string) => {
+const createProduct = async (dto: createProductDTO) => {
   const url = `${config.API_URL}/products`;
   return axios.post<Product>(url, dto).then((res) => res.data);
 };

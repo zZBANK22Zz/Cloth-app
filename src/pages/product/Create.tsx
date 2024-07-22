@@ -50,7 +50,7 @@ const CreateProductPage = () => {
     console.log("Creating product with data:", JSON.stringify(newProduct, null, 2));
   
     try {
-      const createNewProduct = await productService.createProduct(newProduct, session.accessToken);
+      const createNewProduct = await productService.createProduct(newProduct);
       console.log("Product created successfully:", createNewProduct);
       setIsModalOpen(true);
     } catch (error) {
