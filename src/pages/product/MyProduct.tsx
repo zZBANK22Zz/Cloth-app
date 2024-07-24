@@ -142,7 +142,7 @@ const MyProduct: React.FC = () => {
                     <p>{product.seller.name}</p>
                   </div>
                   <div className="flex gap-2">
-                    <Link href={"/product/Edit"}>
+                    <Link href={`/product/Edit?productId=${product.id}`}>
                       <Button
                         size="sm"
                         color="primary"
